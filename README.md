@@ -1,2 +1,3 @@
 # visualize
-A graphing calculator built with Open JFX
+###A graphing calculator built with Open JFX
+Functions:
