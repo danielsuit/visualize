@@ -1,3 +1,5 @@
+package com.visualize;
+
 import java.util.ArrayList;
 public class Operations{
   public String doOper(String f){

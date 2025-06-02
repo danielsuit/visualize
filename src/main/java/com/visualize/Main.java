@@ -1,3 +1,5 @@
+package com.visualize;
+
 import javafx.application.Application;
 import javafx.event.Event;
 import javafx.scene.control.Slider;
@@ -38,7 +40,7 @@ import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.Stop;
 import java.io.FileNotFoundException; 
 import java.lang.Math;
-//imports all the libraries from JavaFX needed, some other libraries are used
+
 public class Main extends Application { 
   Label label; // holds function as a string
   Color c = Color.web("#FF0000"); //default color for graphing, can be changed later
@@ -53,15 +55,6 @@ public class Main extends Application {
     //width and height of graph
     double height = 256;
     double width = 256;
-    //creates slider
-    Slider slider = new Slider(0, 100, 0);
-    slider.setBlockIncrement(10);
-    slider.setShowTickLabels(true);
-    slider.setShowTickMarks(true);
-    slider.setPrefWidth(200);
-    slider.setPrefHeight(150);
-    Color black = Color.web("#000000");
-    Color white = Color.web("#FFFFFF");
     Image image = new Image(new FileInputStream("Graph.jpg"));
     //creates blank white image for graph that is able to be rewritten
     WritableImage wImage = new WritableImage(2048, 2048);  
@@ -69,14 +62,42 @@ public class Main extends Application {
     PixelWriter writer = wImage.getPixelWriter();
     Group root = new Group();
     Scene scene = new Scene(root, 800, 400);
-    //adds the styling for the entire program, stored in a css file
-    scene.getStylesheets().add("Index.css");
-    scene.setFill(new LinearGradient(
-        0, 0, 1, 1, true,                      //sizing
-        CycleMethod.NO_CYCLE,                  //cycling
-        new Stop(0, Color.web("#000000")),     //colors
-        new Stop(1, Color.web("#444444")))
-    );
+    //creates slider
+    Slider slider = new Slider(0, 100, 0);
+    slider.setBlockIncrement(10);
+    slider.setShowTickLabels(true);
+    slider.setShowTickMarks(true);
+    slider.setPrefWidth(200);
+    slider.setPrefHeight(150);
+    // Add a listener to redraw the graph when the slider value changes
+    slider.valueProperty().addListener((obs, oldVal, newVal) -> {
+        // Clear the image first
+        for(int y = 0; y < height; y++){
+          for(int x = 0; x < width; x++){
+            if((x > ((width/2)-(0.003*width)) && x < ((width/2)+(0.003*width)))||(y > ((height/2)-(0.003*height)) && y < ((height/2)+(0.003*height)))){
+                writer.setColor(x, y, Color.BLACK);
+            } else {
+                writer.setColor(x, y, Color.WHITE);
+            }
+          }
+        }
+        int prevX = -1, prevY = -1;
+        for (int b = 0; b < width; b++) {
+          double x = b - width / 2.0;
+          double fx = eval.evaluate(x, slider.getValue());
+          int a = (int) Math.round(height / 2.0 - fx);
+          if (a >= 0 && a < height) {
+            writer.setColor(b, a, c);
+            if (prevX != -1 && prevY != -1) {
+              drawLine(writer, prevX, prevY, b, a, c);
+            }
+            prevX = b;
+            prevY = a;
+          }
+        }
+    });
+    Color black = Color.web("#000000");
+    Color white = Color.web("#FFFFFF");
     //creating vbox and hbox, they are containers that are able to hold buttons, text, images, etc.
     VBox vbox = new VBox(5);
     vbox.getStyleClass().add("vbox");
@@ -113,33 +134,35 @@ public class Main extends Application {
     });
     enter.setOnAction(new EventHandler<ActionEvent>() {
       @Override public void handle(ActionEvent e){
-        //evaluates the function for each value of x and graphs it
         eval.setFunction(label.getText().substring(12));
         String res2 = eval.f(2.0);
         label.setText("Function: y=");
-        int a = 0;
-        // draws the function on the graph
-        for(double y = height/2-1; y > -height/2+1; y--) { 
-        int b = 0;
-        for(double x = -width/2+1; x < width/2-1; x++) {
-          if(eval.fRange(x, y, slider.getValue(), Math.abs(x))){
-            writer.setColor(b, a, c);
+        // Clear the image first
+        for(int y = 0; y < height; y++){
+          for(int x = 0; x < width; x++){
+            if((x > ((width/2)-(0.003*width)) && x < ((width/2)+(0.003*width)))||(y > ((height/2)-(0.003*height)) && y < ((height/2)+(0.003*height)))){
+                writer.setColor(x, y, Color.BLACK);
+            } else {
+                writer.setColor(x, y, Color.WHITE);
+            }
           }
-          b++;
         }
-        a++;
-        }	
+        int prevX = -1, prevY = -1;
+        for (int b = 0; b < width; b++) {
+          double x = b - width / 2.0;
+          double fx = eval.evaluate(x, slider.getValue());
+          int a = (int) Math.round(height / 2.0 - fx);
+          if (a >= 0 && a < height) {
+            writer.setColor(b, a, c);
+            if (prevX != -1 && prevY != -1) {
+              drawLine(writer, prevX, prevY, b, a, c);
+            }
+            prevX = b;
+            prevY = a;
+          }
+        }
       }
     });
-    // Matrix h = new Matrix();
-    // double[][] matrix = {{3.0, 4.0, 5.0}, {3.0, 4.0, 5.0}, {3.0, 4.0, 5.0}};
-    // matrix = h.rref(matrix);
-    // for(int i = 0; i < matrix.length; i++){
-    //   for(int j = 0; j < matrix[0].length; j++){
-    //     System.out.print(matrix[i][j]+" ");
-    //   }
-    //   System.out.println();
-    // }
     //creates buttons for inputing numbers and symbols, selecting colors
     Button bp = new Button("+");
     buttonUpdate(bp, "+");
@@ -219,6 +242,8 @@ public class Main extends Application {
     stage.setScene(scene);
     //reveals the stage
     stage.show();
+    //adds the styling for the entire program, stored in a css file
+    scene.getStylesheets().add(getClass().getResource("/Index.css").toExternalForm());
   } 
   //function that takes the name of the button and assigns it with a label, updates the function when pressed, also adds styling to the button
   public void buttonUpdate(Button b, String num){
@@ -241,5 +266,22 @@ public class Main extends Application {
   //launches the program
   public static void main(String[] args) {
     launch(args);
+  }
+  // Add this helper method inside your Main class:
+  private void drawLine(PixelWriter writer, int x0, int y0, int x1, int y1, Color color) {
+    int dx = Math.abs(x1 - x0);
+    int dy = Math.abs(y1 - y0);
+    int sx = x0 < x1 ? 1 : -1;
+    int sy = y0 < y1 ? 1 : -1;
+    int err = dx - dy;
+    while (true) {
+        if (x0 >= 0 && x0 < 256 && y0 >= 0 && y0 < 256) {
+            writer.setColor(x0, y0, color);
+        }
+        if (x0 == x1 && y0 == y1) break;
+        int e2 = 2 * err;
+        if (e2 > -dy) { err -= dy; x0 += sx; }
+        if (e2 < dx) { err += dx; y0 += sy; }
+    }
   }
 } 

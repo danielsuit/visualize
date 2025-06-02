@@ -1,0 +1,27 @@
+.b { 
+  -fx-font: 12 "Liberation Mono";
+  -fx-background-color: #BBB5C9;
+  -fx-padding: 10 20 10 20;
+}
+.red {
+  -fx-background-color: #ff0000;
+}
+.blue{
+  -fx-background-color: #0000FF;
+}
+.yellow{
+  -fx-background-color: #FFFF00;
+}
+.orange{
+  -fx-background-color: #FFA500;
+}
+.slider{
+  -fx-padding: 0;
+  -fx-width: 100;
+}
+.vbox {
+  -fx-text-fill: #BBB5C9;
+}
+.label {
+  -fx-text-fill: #BBB5C9;
+}
