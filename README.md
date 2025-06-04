@@ -1,3 +1,3 @@
 # visualize
 A graphing calculator built with Open JFX
-Functions:
+![alt text](example.png "Title")
