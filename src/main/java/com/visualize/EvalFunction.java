@@ -9,8 +9,13 @@ public class EvalFunction {
 
     // Evaluates the function for a given x and slider value (a)
     public double evaluate(double x, double a) {
-        // Replace 'x' and 'a' with their values
-        String expr = function.replaceAll("x", Double.toString(x)).replaceAll("a", Double.toString(a));
+        // Replace 'x' and 'a' with their values, handling coefficients properly
+        String expr = function;
+        // Add implicit multiplication between numbers and variables
+        expr = expr.replaceAll("(\\d+)x", "$1*x");
+        expr = expr.replaceAll("(\\d+)a", "$1*a");
+        // Now replace the variables with their values
+        expr = expr.replaceAll("x", Double.toString(x)).replaceAll("a", Double.toString(a));
         return evalExpr(expr);
     }
 
@@ -36,7 +41,7 @@ public class EvalFunction {
         // Handle + and -
         for (int i = expr.length() - 1; i >= 0; i--) {
             char c = expr.charAt(i);
-            if ((c == '+' || c == '-') && i > 0) {
+            if ((c == '+' || c == '-') && i > 0 && expr.charAt(i-1) != '*' && expr.charAt(i-1) != '/') {
                 double left = evalExpr(expr.substring(0, i));
                 double right = evalExpr(expr.substring(i + 1));
                 return c == '+' ? left + right : left - right;
@@ -50,6 +55,10 @@ public class EvalFunction {
                 double right = evalExpr(expr.substring(i + 1));
                 return c == '*' ? left * right : left / right;
             }
+        }
+        // Handle negative numbers at the start
+        if (expr.startsWith("-")) {
+            return -evalExpr(expr.substring(1));
         }
         // Parse as double
         try {

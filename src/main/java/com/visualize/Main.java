@@ -1,5 +1,4 @@
 package com.visualize;
-
 import javafx.application.Application;
 import javafx.event.Event;
 import javafx.scene.control.Slider;
@@ -69,7 +68,6 @@ public class Main extends Application {
     slider.setShowTickMarks(true);
     slider.setPrefWidth(200);
     slider.setPrefHeight(150);
-    // Add a listener to redraw the graph when the slider value changes
     slider.valueProperty().addListener((obs, oldVal, newVal) -> {
         // Clear the image first
         for(int y = 0; y < height; y++){
@@ -83,9 +81,12 @@ public class Main extends Application {
         }
         int prevX = -1, prevY = -1;
         for (int b = 0; b < width; b++) {
-          double x = b - width / 2.0;
+          // Convert screen x to graph x (centered at width/2)
+          double x = (b - width / 2.0) / (width / 2.0) * 5.0; // Scale to [-5, 5] range
           double fx = eval.evaluate(x, slider.getValue());
-          int a = (int) Math.round(height / 2.0 - fx);
+          // Convert graph y to screen y (centered at height/2)
+          int a = (int) Math.round(height / 2.0 - (fx * (height / 2.0) / 5.0)); // Scale y to match x scale
+          
           if (a >= 0 && a < height) {
             writer.setColor(b, a, c);
             if (prevX != -1 && prevY != -1) {
@@ -93,6 +94,9 @@ public class Main extends Application {
             }
             prevX = b;
             prevY = a;
+          } else {
+            prevX = -1;
+            prevY = -1;
           }
         }
     });
@@ -149,9 +153,12 @@ public class Main extends Application {
         }
         int prevX = -1, prevY = -1;
         for (int b = 0; b < width; b++) {
-          double x = b - width / 2.0;
+          // Convert screen x to graph x (centered at width/2)
+          double x = (b - width / 2.0) / (width / 2.0) * 5.0; // Scale to [-5, 5] range
           double fx = eval.evaluate(x, slider.getValue());
-          int a = (int) Math.round(height / 2.0 - fx);
+          // Convert graph y to screen y (centered at height/2)
+          int a = (int) Math.round(height / 2.0 - (fx * (height / 2.0) / 5.0)); // Scale y to match x scale
+          
           if (a >= 0 && a < height) {
             writer.setColor(b, a, c);
             if (prevX != -1 && prevY != -1) {
@@ -159,6 +166,9 @@ public class Main extends Application {
             }
             prevX = b;
             prevY = a;
+          } else {
+            prevX = -1;
+            prevY = -1;
           }
         }
       }
